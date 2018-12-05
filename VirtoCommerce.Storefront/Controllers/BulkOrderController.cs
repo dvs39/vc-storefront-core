@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -115,27 +116,31 @@ namespace VirtoCommerce.Storefront.Controllers
 
         private async Task<string[]> TryAddItemsToCartAsync(BulkOrderItem[] bulkOrderItems)
         {
-            var skus = bulkOrderItems.Select(i => i.Sku);
+            var skus = bulkOrderItems.Select(i => i.Sku).ToList();
+            //TODO: Need to replace from indexed search to special method GetProductByCodes when it will be presents in the catalog API
             var productSearchResult = await _catalogService.SearchProductsAsync(new ProductSearchCriteria
             {
                 PageSize = skus.Count(),
+                ResponseGroup = ItemResponseGroup.Variations | ItemResponseGroup.ItemWithPrices | ItemResponseGroup.Inventory | ItemResponseGroup.ItemProperties,
                 Terms = new[] { new Term { Name = "code", Value = string.Join(",", skus) } }
             });
-
-            foreach (var product in productSearchResult.Products)
+            //Because product stores in index all codes of it variations and the catalog  search returns only main product we need to this concat with variations
+            var foundSkusProductsWithVariationsMap = productSearchResult.Products.Concat(productSearchResult.Products.SelectMany(x => x.Variations))
+                                                                        .ToDictionary(x => x.Sku, StringComparer.OrdinalIgnoreCase);
+            var addedSkus = new List<string>();
+            foreach (var bulkOrderItem in bulkOrderItems)
             {
-                var bulkOrderItem = bulkOrderItems.FirstOrDefault(i => i.Sku == product.Sku);
-                if (bulkOrderItem != null)
+                if (foundSkusProductsWithVariationsMap.TryGetValue(bulkOrderItem.Sku, out var product))
                 {
-                    await _cartBuilder.AddItemAsync(product, bulkOrderItem.Quantity);
+                    if (await _cartBuilder.AddItemAsync(product, bulkOrderItem.Quantity))
+                    {
+                        addedSkus.Add(product.Sku);
+                    }
                 }
             }
-
             await _cartBuilder.SaveAsync();
 
-            var notFoundedSkus = bulkOrderItems.Select(x => x.Sku).Except(productSearchResult.Products.Select(x => x.Sku))
-                                               .Distinct().ToArray();
-            return notFoundedSkus;
+            return skus.Except(addedSkus).ToArray();
         }
 
         private BulkOrderItem GetBulkOrderItemFromCsvRecord(string csvRecord)
@@ -145,8 +150,7 @@ namespace VirtoCommerce.Storefront.Controllers
             var splitted = csvRecord.Split(',', ';', ' ', '\t');
             if (splitted.Length == 2)
             {
-                int quantity = 0;
-                int.TryParse(splitted[1], out quantity);
+                int.TryParse(splitted[1], out var quantity);
                 if (quantity > 0)
                 {
                     bulkOrderItem = new BulkOrderItem
