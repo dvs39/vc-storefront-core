@@ -92,7 +92,7 @@ namespace VirtoCommerce.LiquidThemeEngine.Converters
                 Type = d.ReviewType
             }));
 
-            result.CustomerReviews = product.CustomerReviews.Select(x => x.ToShopifyModel()).ToArray();
+            result.CustomerReviews = product.CustomerReviews?.Select(x => x.ToShopifyModel()).ToArray();
 
             result.FeaturedImage = product.PrimaryImage?.ToShopifyModel();
 
