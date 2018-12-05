@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using VirtoCommerce.Storefront.Model.Common;
+using VirtoCommerce.Storefront.Model.CustomerReviews;
 using VirtoCommerce.Storefront.Model.Marketing;
 using VirtoCommerce.Storefront.Model.Subscriptions;
 
@@ -227,6 +228,8 @@ namespace VirtoCommerce.Storefront.Model.Catalog
         /// Product prices for other currencies
         /// </summary>
         public IList<ProductPrice> Prices { get; set; }
+
+        public IMutablePagedList<CustomerReview> CustomerReviews { get; set; }
 
         /// <summary>
         /// Inventory for default fulfillment center
