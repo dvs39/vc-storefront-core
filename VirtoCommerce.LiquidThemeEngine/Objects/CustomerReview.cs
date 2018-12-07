@@ -8,6 +8,7 @@ namespace VirtoCommerce.LiquidThemeEngine.Objects
         public string Content { get; set; }
         public bool? IsActive { get; set; }
         public string ProductId { get; set; }
+        public double Rate { get; set; }
 
         public DateTime? CreatedDate { get; set; }
     }

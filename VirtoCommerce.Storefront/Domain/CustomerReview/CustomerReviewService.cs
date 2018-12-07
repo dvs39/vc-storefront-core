@@ -24,11 +24,6 @@ namespace VirtoCommerce.Storefront.Domain
             _apiChangesWatcher = apiChangesWatcher;
         }
 
-        public Task<IPagedList<Model.CustomerReviews.CustomerReview>> SearchReviewAsync(CustomerReviewSearchCriteria criteria)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public IPagedList<Model.CustomerReviews.CustomerReview> SearchReviews(CustomerReviewSearchCriteria criteria)
         {
             return SearchReviewsAsync(criteria).GetAwaiter().GetResult();

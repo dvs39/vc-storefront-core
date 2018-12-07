@@ -9,7 +9,7 @@ namespace VirtoCommerce.Storefront.Model.CustomerReviews
         public string Content { get; set; }
         public bool? IsActive { get; set; }
         public string ProductId { get; set; }
-        public decimal Rate { get; set; }
+        public double Rate { get; set; }
 
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }

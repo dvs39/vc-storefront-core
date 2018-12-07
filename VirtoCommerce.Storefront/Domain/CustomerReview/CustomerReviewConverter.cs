@@ -14,6 +14,7 @@ namespace VirtoCommerce.Storefront.Domain.CustomerReview
                 CreatedBy = itemDto.CreatedBy,
                 CreatedDate = itemDto.CreatedDate,
                 IsActive = itemDto.IsActive,
+                Rate = itemDto.Rate ?? itemDto.Rate.Value,
                 ModifiedBy = itemDto.ModifiedBy,
                 ModifiedDate = itemDto.ModifiedDate,
                 ProductId = itemDto.ProductId
